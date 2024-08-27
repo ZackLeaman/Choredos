@@ -16,7 +16,7 @@ Run the following command to install dependencies:
 npm install
 ```
 
-You must create your own MongoDB to set your unique environment variables.
+You must create your own [MongoDB](https://www.mongodb.com/) to set your unique environment variables.
 
 ### Environment variables
 
