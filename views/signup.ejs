@@ -1,0 +1,32 @@
+<%- include('./includes/head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+</head>
+
+<div class="backdrop"></div>
+
+<body>
+  <section class="main-content">
+    <h1 class="main-content__page-title">Choredos Signup</h1>
+    <form class="main-content__form" action="/signup" method="POST">
+      <div class="main-content__field">
+        <label for="username">Username</label>
+        <input name="username" id="username" type="text">
+      </div>
+      <div class="main-content__field">
+        <label for="email">Email</label>
+        <input name="email" id="email" type="email">
+      </div>
+      <div class="main-content__field">
+        <label for="password">Password</label>
+        <input name="password" id="password" type="password">
+      </div>
+      <div class="main-content__field">
+        <label for="confirm-password">Confirm Password</label>
+        <input name="confirmPassword" id="confirm-password" type="password">
+      </div>
+      <button id="submit" type="submit">Signup</button>
+    </form>
+    <a href="/login">login</a>
+  </section>
+
+  <%- include('./includes/end.ejs') %>

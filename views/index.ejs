@@ -1,0 +1,46 @@
+<%- include('./includes/head.ejs') %>
+<link rel="stylesheet" href="/css/chores.css">
+</head>
+
+<%- include('./includes/navigation.ejs') %>
+
+<body>
+  <section class="main-content">
+    <h1 class="main-content__page-title">Choredos</h1>
+    <ul class="main-content__chores">
+      <% for (let i = 0; i < chores.length; i++) { %>
+      <li class="main-content__chore">
+        <h3 class="main-content__title"><%= chores[i].title %></h3>
+        <img class="main-content__img" src="<%= chores[i].imageUrl %>" />
+        <h5 class="main-content__label">Next Due:</h5>
+        <p class="main-content__date"><%= chores[i].nextDue %></p>
+        <h5 class="main-content__label">Last Completed:</h5>
+        <p class="main-content__date"><%= chores[i].lastCompleted %></p>
+        <h5 class="main-content__label">Due Every:</h5>
+        <p class="main-content__date"><%= chores[i].dueEvery %> Days</p>
+        <h5 class="main-content__label">Description:</h5>
+        <p class="main-content__description"><%= chores[i].description %></p>
+        <h5 class="main-content__label">Helpful Links:</h5>
+        <ul class="main-content__links">
+          <% for (let j = 0; j < chores[i].links.length; j++) { %>
+          <li class="main-content__link">
+            <a href="<%= chores[i].links[j].link %>" class="main-content__link" target="_blank"><%= chores[i].links[j].display %></a>
+          </li>
+          <% } %>
+        </ul>
+        <a class="btn" href="/edit/<%= chores[i]._id %>">Edit</a>
+
+        <% if (!chores[i].isCompletedToday) { %>
+        <form action="/complete-chore" method="post">
+          <input type="hidden" name="_id" value="<%= chores[i]._id %>" />
+          <button class="btn complete" type="submit">Complete It!</button>
+        </form>
+        <% } else { %>
+        <p class="main-content__completed">GREAT JOB!</p>
+        <% } %>
+      </li>
+      <% } %>
+    </ul>
+  </section>
+
+  <%- include('./includes/end.ejs') %>

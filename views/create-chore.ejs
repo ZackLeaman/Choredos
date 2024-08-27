@@ -1,0 +1,56 @@
+<%- include('./includes/head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+</head>
+
+<%- include('./includes/navigation.ejs') %>
+
+<body>
+  <section class="main-content">
+    <h1 class="main-content__page-title"><%= !editMode ? 'Create a Chore!' : 'Edit a Chore!' %></h1>
+    <% if (editMode) { %>
+    <form class="main-content__form" action="/delete/<%= chore._id %>" method="POST">
+      <button id="btn delete" type="submit">Delete</button>
+    </form>
+    <% } %>
+    <form class="main-content__form" action="<%= !editMode ? '/create' : '/edit' %>" method="POST">
+      <% if (editMode) { %>
+      <input type="hidden" name="_id" value="<%= chore._id %>" />
+      <% } %>
+      <div class="main-content__field">
+        <label for="title">Title</label>
+        <input name="title" id="title" type="text" value="<% if (editMode) { %><%= chore.title %><% } %>">
+      </div>
+      <div class="main-content__field">
+        <label for="due-date">Due Date</label>
+        <input name="dueDate" id="due-date" type="date" value="<% if (editMode) { %><%= chore.nextDue %><% } %>">
+      </div>
+      <div class="main-content__field">
+        <label for="due-every">Due Every</label>
+        <input name="dueEvery" id="due-every" type="number" value="<% if (editMode) { %><%= chore.dueEvery %><% } %>"> Days
+      </div>
+      <div class="main-content__field">
+        <label for="description">Description</label>
+        <textarea name="description" id="description"><% if (editMode) { %><%= chore.description %><% } %></textarea>
+      </div>
+      <div class="main-content__field">
+        <label for="image-url">Image Url</label>
+        <input name="imageUrl" id="image-url" type="text" value="<% if (editMode) { %><%= chore.imageUrl %><% } %>">
+      </div>
+      <div class="main-content__group">
+        <% for (let i = 0; i < 5; i++) { %>
+        <div class="main-content__group__entry">
+          <label for="link-display">Link Display</label>
+          <input name="linkDisplay<%= i %>" id="link-display" type="text" value="<% if (editMode && chore.links.length > i) { %><%= chore.links[i].display %><% } %>">
+          <label for="link-url">Link Url</label>
+          <input name="linkUrl<%= i %>" id="link-url" type="text" value="<% if (editMode && chore.links.length > i) { %><%= chore.links[i].link %><% } %>">
+          <!-- <button id="delete">x</button> -->
+        </div>
+        <% } %>
+        <!-- <button id="add-link">Add Link +</button> -->
+      </div>
+      <button id="submit" type="submit"><%= editMode ? "Update" : "Create" %></button>
+    </form>
+
+  </section>
+
+  <%- include('./includes/end.ejs') %>

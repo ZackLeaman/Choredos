@@ -1,0 +1,38 @@
+.main-content__chores {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    gap: 2rem;
+    margin: 0;
+}
+
+.main-content__chore {
+    width: 40rem;
+    background: rgb(223, 200, 180);
+    color: #b96262;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    display: grid;
+    grid-template-columns: 0.5fr 1fr;
+    gap: 0.5rem;
+    box-shadow: 0.5rem 0.5rem 0.2rem rgba(10, 10, 75, 0.2);
+}
+
+.main-content__label {
+    grid-column: 1;
+}
+
+.main-content__label, 
+.main-content__title {
+    margin: 0;
+}
+
+.main-content__img {
+    height: 10rem;
+    object-fit: contain;
+}
+
+p {
+    margin: 0;
+}

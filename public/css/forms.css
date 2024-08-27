@@ -1,0 +1,22 @@
+.main-content__form {
+    background: rgb(223, 200, 180);
+    color: #b96262;
+    padding: 1rem;
+    border-radius: 1rem;
+    max-width: min(60%, 700px);
+    box-shadow: 0.5rem 0.5rem 0.2rem rgba(10, 10, 75, 0.2);
+}
+
+.main-content__field {
+    display: flex;
+    justify-content: center;
+}
+
+.main-content__group, 
+.main-content__field {
+    padding-top: 1rem;
+}
+
+label {
+    padding-inline: 1rem;
+}
