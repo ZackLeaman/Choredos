@@ -8,9 +8,9 @@ Project uses `express: ^4.19.2` framework with `ejs: ^3.1.10` for views. Uses `m
 
 ### Prerequisites
 
-Run the following command to install dependencies:
-
 Should have [Node.js](https://nodejs.org/en/download/prebuilt-installer) installed.
+
+Run the following command to install dependencies:
 
 ```shell
 npm install
