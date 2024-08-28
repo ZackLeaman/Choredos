@@ -9,6 +9,7 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 
 const choresRoutes = require("./routes/chores");
 const authRoutes = require("./routes/auth");
+const User = require("./models/user");
 
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.uqyei50.mongodb.net/${process.env.MONGO_DB}`;
 
@@ -59,6 +60,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
+
+app.use((req, res, next) => {
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
 
 app.use(authRoutes);
 app.use(choresRoutes);
