@@ -27,11 +27,11 @@ const choreSchema = new Schema(
         link: { type: String, required: true },
       },
     ],
-    // creator: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: "User",
-    //   required: true,
-    // },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );
