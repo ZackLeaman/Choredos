@@ -25,6 +25,12 @@ header {
     position: relative;
 }
 
+h1 {
+    color: white;
+    padding-inline: 1rem;
+    position: relative;
+}
+
 .main-header__nav {
     display: flex;
     width: 100%;
@@ -70,4 +76,28 @@ header {
 a.active {
     color: white;
     text-decoration: underline;
+}
+
+.main-content > a {
+    text-decoration: none;
+    max-width: 500px;
+    margin: 1rem;
+    padding: 0.5rem;
+    background: #f1a35f;
+    border-radius: 1rem;
+    box-shadow: 0 0.3rem 0 rgb(118 90 65);
+    color: #ffffff;
+}
+
+.user-message {
+    max-width: 500px;
+    margin: 0 1rem 1rem 1rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    box-shadow: 0.5rem 0.5rem 0.2rem rgba(10, 10, 75, 0.2);
+    text-align: center;
+}
+
+.user-message--error {
+    background: red;
 }

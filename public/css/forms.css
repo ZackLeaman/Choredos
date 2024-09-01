@@ -8,8 +8,18 @@
 }
 
 .main-content__field {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: flex-end;
+}
+
+.main-content__login-form > .main-content__field {
+    grid-template-columns: 0.5fr 1fr;
+}
+
+.main-content__one-column,
+.main-content__login-form > .main-content__one-column {
+    grid-template-columns: 1fr;
 }
 
 .main-content__group, 
@@ -19,4 +29,24 @@
 
 label {
     padding-inline: 1rem;
+}
+
+img {
+    height: 10rem;
+    object-fit: contain;
+}
+
+#submit {
+    text-decoration: none;
+    max-width: 500px;
+    padding: 0.5rem;
+    background: #f1a35f;
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 0.3rem 0 rgb(118 90 65);
+    color: #ffffff;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 1rem;
+    width: 100%;
 }
