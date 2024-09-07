@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const flash = require("connect-flash");
+const cookieParser = require("cookie-parser");
+const { doubleCsrf } = require("csrf-csrf");
 
 const choresRoutes = require("./routes/chores");
 const authRoutes = require("./routes/auth");
@@ -19,6 +21,17 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions", // name of collection in 'store' db
   // can also config expiration info here
+});
+
+const {
+  doubleCsrfProtection, // This is the default CSRF protection middleware.
+} = doubleCsrf({
+  getSecret: () => process.env.CSRF_SECRET,
+  getTokenFromRequest: (req) => {
+    console.log(req);
+
+    return req.body._csrf;
+  },
 });
 
 const fileStorage = multer.diskStorage({
@@ -47,6 +60,8 @@ const app = express();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
+
+app.use(cookieParser(process.env.CSRF_SECRET));
 
 app.use(
   session({
@@ -79,6 +94,15 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => console.log(err));
+});
+
+app.use(doubleCsrfProtection);
+
+app.use((req, res, next) => {
+  // locals special keyword that is used on every view
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 app.use(authRoutes);

@@ -32,6 +32,7 @@
 
         <% if (!chores[i].isCompletedToday) { %>
         <form action="/complete-chore" method="post">
+          <input type="text" name="_csrf" value="<%= csrfToken %>" />
           <input type="hidden" name="_id" value="<%= chores[i]._id %>" />
           <button class="btn complete" type="submit">Complete It!</button>
         </form>

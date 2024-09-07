@@ -12,6 +12,7 @@
     <% } %>
     <% if (editMode) { %>
     <form class="main-content__form" action="/delete/<%= chore._id %>" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <button id="btn delete" type="submit">Delete</button>
     </form>
     <% } %>
@@ -19,6 +20,7 @@
       <% if (editMode) { %>
       <input type="hidden" name="_id" value="<%= chore._id %>" />
       <% } %>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="main-content__field">
         <label for="title">Title</label>
         <input name="title" id="title" type="text" value="<%= oldInput.title %>">

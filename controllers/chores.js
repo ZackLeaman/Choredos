@@ -40,7 +40,6 @@ exports.getChores = (req, res, next) => {
         pageTitle: "Choredos",
         chores: mappedChores,
         username: req.session.isLoggedIn ? req.session.user.username : "",
-        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((e) => {
@@ -62,7 +61,6 @@ exports.getCreateChore = (req, res, next) => {
     pageTitle: "Create Chore",
     editMode: false,
     username: req.session.isLoggedIn ? req.session.user.username : "",
-    isAuthenticated: req.session.isLoggedIn,
     errorMessage: message,
     oldInput: {
       title: "",
@@ -102,7 +100,6 @@ exports.postCreateChore = (req, res, next) => {
       pageTitle: "Create Chore",
       editMode: false,
       username: req.session.isLoggedIn ? req.session.user.username : "",
-      isAuthenticated: req.session.isLoggedIn,
       errorMessage: errors.array()[0].msg,
       oldInput: { title, dueDate, dueEvery, description, imageUrl, links },
       validationErrors: errors.array(),
@@ -217,7 +214,6 @@ exports.getEditChore = (req, res, next) => {
         chore: mappedChore,
         editMode: true,
         username: req.session.isLoggedIn ? req.session.user.username : "",
-        isAuthenticated: req.session.isLoggedIn,
         errorMessage: message,
         oldInput: {
           title: mappedChore.title,
@@ -265,7 +261,6 @@ exports.postEditChore = (req, res, next) => {
       chore,
       editMode: true,
       username: req.session.isLoggedIn ? req.session.user.username : "",
-      isAuthenticated: req.session.isLoggedIn,
       errorMessage: errors.array()[0].msg,
       oldInput: { title, dueDate, dueEvery, description, imageUrl, links },
       validationErrors: errors.array(),

@@ -12,6 +12,7 @@
     </ul>
     <p><%= username %></p>
     <form action="/logout" method="POST">
+      <input type="text" name="_csrf" value="<%= csrfToken %>" />
       <button class="main-header__logout" type="submit">Logout</button>
     </form>
     <% } else { %>
