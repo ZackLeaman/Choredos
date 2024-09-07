@@ -13,6 +13,16 @@
     justify-items: flex-end;
 }
 
+.chore-details {
+    .main-content__field {
+        grid-template-columns: 0.5fr 1fr;
+
+        input, textarea {
+            width: 100%;
+        }
+    }
+}
+
 .main-content__login-form > .main-content__field {
     grid-template-columns: 0.5fr 1fr;
 }

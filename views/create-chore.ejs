@@ -5,7 +5,7 @@
 <%- include('./includes/navigation.ejs', {isAuthenticated, username}) %>
 
 <body>
-  <section class="main-content">
+  <section class="main-content chore-details">
     <h1 class="main-content__page-title"><%= !editMode ? 'Create a Chore!' : 'Edit a Chore!' %></h1>
     <% if (errorMessage) { %>
     <div class="user-message user-message--error"><%= errorMessage %></div>
@@ -28,8 +28,8 @@
         <input name="dueDate" id="due-date" type="date" value="<%= oldInput.dueDate %>">
       </div>
       <div class="main-content__field">
-        <label for="due-every">Due Every</label>
-        <input name="dueEvery" id="due-every" type="number" value="<%= oldInput.dueEvery %>"> Days
+        <label for="due-every">Due Every (In Days)</label>
+        <input name="dueEvery" id="due-every" type="number" value="<%= oldInput.dueEvery %>">
       </div>
       <div class="main-content__field">
         <label for="description">Description</label>

@@ -1,30 +1,37 @@
 const Chore = require("../models/chore.js");
 const User = require("../models/user.js");
 const { validationResult } = require("express-validator");
+const {
+  getDateString,
+  compareUTCDates,
+  getDateAsUTC,
+  getDateInputValue,
+} = require("../utils/date-helper.js");
 
 exports.getChores = (req, res, next) => {
-  const today = new Date().toDateString();
-  console.log(today);
-
   Chore.find({ userId: req.user })
     .sort({ nextDue: 1 })
     .then((chores) => {
       const mappedChores = chores.map((c) => {
-        const nextDue = new Date(c.nextDue);
-        console.log(nextDue, nextDue.toLocaleDateString());
+        const nextDue = c.nextDue;
 
-        let lastCompleted = "";
+        let lastCompleted;
         if (c.lastCompleted.length > 0) {
-          lastCompleted = new Date(
-            c.lastCompleted[c.lastCompleted.length - 1]
-          ).toDateString();
+          lastCompleted = new Date(c.lastCompleted[c.lastCompleted.length - 1]);
         }
+
+        let isCompletedToday = false;
+        if (lastCompleted !== undefined) {
+          isCompletedToday = compareUTCDates(new Date(), lastCompleted);
+        }
+
         return {
           ...c._doc,
           _id: c._id.toString(),
-          nextDue: nextDue.toDateString(),
-          lastCompleted,
-          isCompletedToday: today === lastCompleted,
+          nextDue: getDateString(nextDue),
+          lastCompleted:
+            lastCompleted !== undefined ? getDateString(lastCompleted) : "",
+          isCompletedToday,
         };
       });
       console.log(mappedChores);
@@ -75,9 +82,15 @@ exports.postCreateChore = (req, res, next) => {
   const links = [];
   for (let i = 0; i < 5; i++) {
     if (req.body[`linkUrl${i}`]) {
+      const link =
+        req.body[`linkUrl${i}`].length > 0 ? req.body[`linkUrl${i}`] : "";
+      const display =
+        req.body[`linkDisplay${i}`].length > 0
+          ? req.body[`linkDisplay${i}`]
+          : link;
       links.push({
-        display: req.body[`linkDisplay${i}`],
-        link: req.body[`linkUrl${i}`],
+        display,
+        link,
       });
     }
   }
@@ -95,6 +108,7 @@ exports.postCreateChore = (req, res, next) => {
       validationErrors: errors.array(),
     });
   }
+  const nextDueDate = new Date(dueDate);
 
   const chore = new Chore({
     title,
@@ -103,7 +117,7 @@ exports.postCreateChore = (req, res, next) => {
     imageUrl,
     links,
     lastCompleted: [],
-    nextDue: new Date(dueDate).toISOString(),
+    nextDue: getDateAsUTC(nextDueDate).toISOString(),
     userId: req.user,
   });
 
@@ -149,10 +163,14 @@ exports.postChoreComplete = (req, res, next) => {
       }
     })
     .then((chore) => {
-      const date = new Date();
-      chore.lastCompleted.push(date.toISOString());
-      date.setDate(date.getDate() + chore.dueEvery);
-      chore.nextDue = date.toISOString();
+      const todayUTC = getDateAsUTC(new Date());
+      // cap last completed to 10 entries
+      if (chore.lastCompleted.length >= 10) {
+        chore.lastCompleted.shift();
+      }
+      chore.lastCompleted.push(todayUTC.toISOString());
+      todayUTC.setDate(todayUTC.getDate() + chore.dueEvery);
+      chore.nextDue = todayUTC.toISOString();
       return chore.save();
     })
     .then(() => {
@@ -203,7 +221,7 @@ exports.getEditChore = (req, res, next) => {
         errorMessage: message,
         oldInput: {
           title: mappedChore.title,
-          dueDate: mappedChore.nextDue,
+          dueDate: getDateInputValue(new Date(mappedChore.nextDue)),
           dueEvery: mappedChore.dueEvery,
           description: mappedChore.description,
           imageUrl: mappedChore.imageUrl,
@@ -226,9 +244,15 @@ exports.postEditChore = (req, res, next) => {
   const links = [];
   for (let i = 0; i < 5; i++) {
     if (req.body[`linkUrl${i}`]) {
+      const link =
+        req.body[`linkUrl${i}`].length > 0 ? req.body[`linkUrl${i}`] : "";
+      const display =
+        req.body[`linkDisplay${i}`].length > 0
+          ? req.body[`linkDisplay${i}`]
+          : link;
       links.push({
-        display: req.body[`linkDisplay${i}`],
-        link: req.body[`linkUrl${i}`],
+        display,
+        link,
       });
     }
   }
@@ -262,7 +286,7 @@ exports.postEditChore = (req, res, next) => {
     })
     .then((chore) => {
       chore.title = title;
-      chore.nextDue = new Date(dueDate).toISOString();
+      chore.nextDue = getDateAsUTC(new Date(dueDate)).toISOString();
       chore.dueEvery = dueEvery;
       chore.description = description;
       chore.imageUrl = imageUrl;

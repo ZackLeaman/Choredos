@@ -28,10 +28,15 @@ router.post(
       .withMessage("Description must not exceed 400 characters."),
     body("imageUrl").isURL(),
     check("links.*.display")
+      .optional({ checkFalsy: true })
       .trim()
       .isLength({ min: 1 })
       .withMessage("Links must have display text of at least 1 character."),
-    check("links.*.link").trim().isURL().withMessage("Links must be URLs."),
+    check("links.*.link")
+      .optional({ checkFalsy: true })
+      .trim()
+      .isURL()
+      .withMessage("Links must be URLs."),
   ],
   isAuth,
   choresController.postCreateChore
@@ -58,10 +63,15 @@ router.post(
       .withMessage("Description must not exceed 400 characters."),
     body("imageUrl").isURL(),
     check("links.*.display")
+      .optional({ checkFalsy: true })
       .trim()
       .isLength({ min: 1 })
       .withMessage("Links must have display text of at least 1 character."),
-    check("links.*.link").trim().isURL().withMessage("Links must be URLs."),
+    check("links.*.link")
+      .optional({ checkFalsy: true })
+      .trim()
+      .isURL()
+      .withMessage("Links must be URLs."),
   ],
   isAuth,
   choresController.postEditChore
