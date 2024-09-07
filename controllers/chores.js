@@ -1,26 +1,37 @@
 const Chore = require("../models/chore.js");
 const User = require("../models/user.js");
+const { validationResult } = require("express-validator");
+const {
+  getDateString,
+  compareUTCDates,
+  getDateAsUTC,
+  getDateInputValue,
+} = require("../utils/date-helper.js");
 
 exports.getChores = (req, res, next) => {
-  const today = new Date().toDateString();
-
   Chore.find({ userId: req.user })
     .sort({ nextDue: 1 })
     .then((chores) => {
       const mappedChores = chores.map((c) => {
-        const nextDue = new Date(c.nextDue);
-        let lastCompleted = "";
+        const nextDue = c.nextDue;
+
+        let lastCompleted;
         if (c.lastCompleted.length > 0) {
-          lastCompleted = new Date(
-            c.lastCompleted[c.lastCompleted.length - 1]
-          ).toDateString();
+          lastCompleted = new Date(c.lastCompleted[c.lastCompleted.length - 1]);
         }
+
+        let isCompletedToday = false;
+        if (lastCompleted !== undefined) {
+          isCompletedToday = compareUTCDates(new Date(), lastCompleted);
+        }
+
         return {
           ...c._doc,
           _id: c._id.toString(),
-          nextDue: nextDue.toDateString(),
-          lastCompleted,
-          isCompletedToday: today === lastCompleted,
+          nextDue: getDateString(nextDue),
+          lastCompleted:
+            lastCompleted !== undefined ? getDateString(lastCompleted) : "",
+          isCompletedToday,
         };
       });
       console.log(mappedChores);
@@ -28,16 +39,40 @@ exports.getChores = (req, res, next) => {
         path: "/",
         pageTitle: "Choredos",
         chores: mappedChores,
+        username: req.session.isLoggedIn ? req.session.user.username : "",
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getCreateChore = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render("create-chore", {
     path: "/create",
     pageTitle: "Create Chore",
     editMode: false,
+    username: req.session.isLoggedIn ? req.session.user.username : "",
+    isAuthenticated: req.session.isLoggedIn,
+    errorMessage: message,
+    oldInput: {
+      title: "",
+      dueDate: "",
+      dueEvery: "",
+      description: "",
+      imageUrl: "",
+      links: [],
+    },
+    validationErrors: [],
   });
 };
 
@@ -47,12 +82,33 @@ exports.postCreateChore = (req, res, next) => {
   const links = [];
   for (let i = 0; i < 5; i++) {
     if (req.body[`linkUrl${i}`]) {
+      const link =
+        req.body[`linkUrl${i}`].length > 0 ? req.body[`linkUrl${i}`] : "";
+      const display =
+        req.body[`linkDisplay${i}`].length > 0
+          ? req.body[`linkDisplay${i}`]
+          : link;
       links.push({
-        display: req.body[`linkDisplay${i}`],
-        link: req.body[`linkUrl${i}`],
+        display,
+        link,
       });
     }
   }
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("create-chore", {
+      path: "/create",
+      pageTitle: "Create Chore",
+      editMode: false,
+      username: req.session.isLoggedIn ? req.session.user.username : "",
+      isAuthenticated: req.session.isLoggedIn,
+      errorMessage: errors.array()[0].msg,
+      oldInput: { title, dueDate, dueEvery, description, imageUrl, links },
+      validationErrors: errors.array(),
+    });
+  }
+  const nextDueDate = new Date(dueDate);
 
   const chore = new Chore({
     title,
@@ -61,7 +117,7 @@ exports.postCreateChore = (req, res, next) => {
     imageUrl,
     links,
     lastCompleted: [],
-    nextDue: dueDate,
+    nextDue: getDateAsUTC(nextDueDate).toISOString(),
     userId: req.user,
   });
 
@@ -75,7 +131,7 @@ exports.postCreateChore = (req, res, next) => {
     })
     .then((user) => {
       if (!user) {
-        console.log("ERROR: could not find user");
+        throw new Error("Could not find user");
       }
 
       user.chores.push(_savedChore);
@@ -84,7 +140,11 @@ exports.postCreateChore = (req, res, next) => {
     .then(() => {
       res.redirect("/");
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postChoreComplete = (req, res, next) => {
@@ -93,28 +153,34 @@ exports.postChoreComplete = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
       if (!user) {
-        const error = new Error("could not find user");
-        throw error;
+        throw new Error("Could not find user");
       }
 
       if (user.chores.findIndex((c) => c.toString() === _id) !== -1) {
         return Chore.findById(_id);
       } else {
-        const error = new Error("user not associated with chore");
-        throw error;
+        throw new Error("Could not find user chore");
       }
     })
     .then((chore) => {
-      const date = new Date();
-      chore.lastCompleted.push(date.toISOString());
-      date.setDate(date.getDate() + chore.dueEvery);
-      chore.nextDue = date.toISOString();
+      const todayUTC = getDateAsUTC(new Date());
+      // cap last completed to 10 entries
+      if (chore.lastCompleted.length >= 10) {
+        chore.lastCompleted.shift();
+      }
+      chore.lastCompleted.push(todayUTC.toISOString());
+      todayUTC.setDate(todayUTC.getDate() + chore.dueEvery);
+      chore.nextDue = todayUTC.toISOString();
       return chore.save();
     })
     .then(() => {
       res.redirect("/");
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getEditChore = (req, res, next) => {
@@ -123,15 +189,13 @@ exports.getEditChore = (req, res, next) => {
   User.findById(req.user)
     .then((user) => {
       if (!user) {
-        const error = new Error("could not find user");
-        throw error;
+        throw new Error("Could not find user");
       }
 
       if (user.chores.findIndex((c) => c.toString() === id) !== -1) {
         return Chore.findById(id);
       } else {
-        const error = new Error("user not associated with chore");
-        throw error;
+        throw new Error("Could not find user chore");
       }
     })
     .then((chore) => {
@@ -140,55 +204,104 @@ exports.getEditChore = (req, res, next) => {
         _id: chore._id.toString(),
       };
 
+      let message = req.flash("error");
+      if (message.length > 0) {
+        message = message[0];
+      } else {
+        message = null;
+      }
+
       res.render("create-chore", {
         path: "/edit",
         pageTitle: "Edit Chore",
         chore: mappedChore,
         editMode: true,
+        username: req.session.isLoggedIn ? req.session.user.username : "",
+        isAuthenticated: req.session.isLoggedIn,
+        errorMessage: message,
+        oldInput: {
+          title: mappedChore.title,
+          dueDate: getDateInputValue(new Date(mappedChore.nextDue)),
+          dueEvery: mappedChore.dueEvery,
+          description: mappedChore.description,
+          imageUrl: mappedChore.imageUrl,
+          links: mappedChore.links,
+        },
+        validationErrors: [],
       });
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postEditChore = (req, res, next) => {
-  const { _id, title, dueDate, dueEvery, description, imageUrl } = req.body;
+  const { _id, title, dueDate, dueEvery, description, imageUrl, chore } =
+    req.body;
 
-  User.findById(req.user).then((user) => {
-    if (!user) {
-      console.log("ERROR: could not find user");
-      return res.redirect("/");
+  const links = [];
+  for (let i = 0; i < 5; i++) {
+    if (req.body[`linkUrl${i}`]) {
+      const link =
+        req.body[`linkUrl${i}`].length > 0 ? req.body[`linkUrl${i}`] : "";
+      const display =
+        req.body[`linkDisplay${i}`].length > 0
+          ? req.body[`linkDisplay${i}`]
+          : link;
+      links.push({
+        display,
+        link,
+      });
     }
+  }
 
-    const links = [];
-    for (let i = 0; i < 5; i++) {
-      if (req.body[`linkUrl${i}`]) {
-        links.push({
-          display: req.body[`linkDisplay${i}`],
-          link: req.body[`linkUrl${i}`],
-        });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("create-chore", {
+      path: "/edit",
+      pageTitle: "Edit Chore",
+      chore,
+      editMode: true,
+      username: req.session.isLoggedIn ? req.session.user.username : "",
+      isAuthenticated: req.session.isLoggedIn,
+      errorMessage: errors.array()[0].msg,
+      oldInput: { title, dueDate, dueEvery, description, imageUrl, links },
+      validationErrors: errors.array(),
+    });
+  }
+
+  User.findById(req.user)
+    .then((user) => {
+      if (!user) {
+        throw new Error("Could not find user");
       }
-    }
 
-    if (user.chores.findIndex((c) => c.toString() === _id) !== -1) {
-      Chore.findById(_id)
-        .then((chore) => {
-          chore.title = title;
-          chore.dueDate = dueDate;
-          chore.dueEvery = dueEvery;
-          chore.description = description;
-          chore.imageUrl = imageUrl;
-          chore.links = links;
+      if (user.chores.findIndex((c) => c.toString() === _id) !== -1) {
+        return Chore.findById(_id);
+      } else {
+        throw new Error("Could not find user chore");
+      }
+    })
+    .then((chore) => {
+      chore.title = title;
+      chore.nextDue = getDateAsUTC(new Date(dueDate)).toISOString();
+      chore.dueEvery = dueEvery;
+      chore.description = description;
+      chore.imageUrl = imageUrl;
+      chore.links = links;
 
-          return chore.save();
-        })
-        .then(() => {
-          res.redirect("/");
-        })
-        .catch((e) => console.log(e));
-    } else {
+      return chore.save();
+    })
+    .then(() => {
       res.redirect("/");
-    }
-  });
+    })
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postDeleteChore = (req, res, next) => {
@@ -198,13 +311,11 @@ exports.postDeleteChore = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        console.log("Error: could not find user");
-        return res.redirect("/");
+        throw new Error("Could not find user");
       }
 
       if (user.chores.findIndex((c) => c.toString() === _id) === -1) {
-        console.log("Error: could not find user chore");
-        return res.redirect("/");
+        throw new Error("Could not find user chore");
       }
 
       user.chores = user.chores.filter((c) => c.toString() !== _id);
@@ -216,5 +327,9 @@ exports.postDeleteChore = (req, res, next) => {
     .then(() => {
       res.status(303).redirect("/");
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      const error = new Error(e);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

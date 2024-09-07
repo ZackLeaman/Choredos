@@ -7,18 +7,29 @@
 <body>
   <section class="main-content">
     <h1 class="main-content__page-title">Choredos Login</h1>
-    <form class="main-content__form" action="/login" method="POST">
+    <% if (errorMessage) { %>
+    <div class="user-message user-message--error"><%= errorMessage %></div>
+    <% } %>
+    <form class="main-content__form main-content__login-form" action="/login" method="POST">
       <div class="main-content__field">
         <label for="email">Email</label>
-        <input name="email" id="email" type="email">
+        <input name="email" id="email" type="email" value="<%= oldInput.email %>">
       </div>
       <div class="main-content__field">
         <label for="password">Password</label>
         <input name="password" id="password" type="password">
+      </div>
+      <div class="main-content__field main-content__one-column">
+        <label class="switch">
+          Show Password
+          <input type="checkbox" id="showPassword">
+          <span class="slider round"></span>
+        </label>
       </div>
       <button id="submit" type="submit">Login</button>
     </form>
     <a href="/signup">Signup</a>
   </section>
 
+  <script src="/js/main.js"></script>
   <%- include('./includes/end.ejs') %>

@@ -7,26 +7,37 @@
 <body>
   <section class="main-content">
     <h1 class="main-content__page-title">Choredos Signup</h1>
+    <% if (errorMessage) { %>
+    <div class="user-message user-message--error"><%= errorMessage %></div>
+    <% } %>
     <form class="main-content__form" action="/signup" method="POST">
       <div class="main-content__field">
         <label for="username">Username</label>
-        <input name="username" id="username" type="text">
+        <input name="username" id="username" type="text" value="<%= oldInput.username %>">
       </div>
       <div class="main-content__field">
         <label for="email">Email</label>
-        <input name="email" id="email" type="email">
+        <input name="email" id="email" type="email" value="<%= oldInput.email %>">
       </div>
       <div class="main-content__field">
         <label for="password">Password</label>
-        <input name="password" id="password" type="password">
+        <input name="password" id="password" type="password" value="<%= oldInput.password %>">
       </div>
       <div class="main-content__field">
-        <label for="confirm-password">Confirm Password</label>
-        <input name="confirmPassword" id="confirm-password" type="password">
+        <label for="confirmPassword">Confirm Password</label>
+        <input name="confirmPassword" id="confirmPassword" type="password" value="<%= oldInput.confirmPassword %>">
+      </div>
+      <div class="main-content__field main-content__one-column">
+        <label class="switch">
+          Show Passwords
+          <input type="checkbox" id="showPassword">
+          <span class="slider round"></span>
+        </label>
       </div>
       <button id="submit" type="submit">Signup</button>
     </form>
     <a href="/login">login</a>
   </section>
 
+  <script src="/js/main.js"></script>
   <%- include('./includes/end.ejs') %>

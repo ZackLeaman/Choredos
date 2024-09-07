@@ -2,11 +2,14 @@
 <link rel="stylesheet" href="/css/forms.css">
 </head>
 
-<%- include('./includes/navigation.ejs') %>
+<%- include('./includes/navigation.ejs', {isAuthenticated, username}) %>
 
 <body>
-  <section class="main-content">
+  <section class="main-content chore-details">
     <h1 class="main-content__page-title"><%= !editMode ? 'Create a Chore!' : 'Edit a Chore!' %></h1>
+    <% if (errorMessage) { %>
+    <div class="user-message user-message--error"><%= errorMessage %></div>
+    <% } %>
     <% if (editMode) { %>
     <form class="main-content__form" action="/delete/<%= chore._id %>" method="POST">
       <button id="btn delete" type="submit">Delete</button>
@@ -18,31 +21,32 @@
       <% } %>
       <div class="main-content__field">
         <label for="title">Title</label>
-        <input name="title" id="title" type="text" value="<% if (editMode) { %><%= chore.title %><% } %>">
+        <input name="title" id="title" type="text" value="<%= oldInput.title %>">
       </div>
       <div class="main-content__field">
         <label for="due-date">Due Date</label>
-        <input name="dueDate" id="due-date" type="date" value="<% if (editMode) { %><%= chore.nextDue %><% } %>">
+        <input name="dueDate" id="due-date" type="date" value="<%= oldInput.dueDate %>">
       </div>
       <div class="main-content__field">
-        <label for="due-every">Due Every</label>
-        <input name="dueEvery" id="due-every" type="number" value="<% if (editMode) { %><%= chore.dueEvery %><% } %>"> Days
+        <label for="due-every">Due Every (In Days)</label>
+        <input name="dueEvery" id="due-every" type="number" value="<%= oldInput.dueEvery %>">
       </div>
       <div class="main-content__field">
         <label for="description">Description</label>
-        <textarea name="description" id="description"><% if (editMode) { %><%= chore.description %><% } %></textarea>
+        <textarea name="description" id="description"><%= oldInput.description %></textarea>
       </div>
       <div class="main-content__field">
         <label for="image-url">Image Url</label>
-        <input name="imageUrl" id="image-url" type="text" value="<% if (editMode) { %><%= chore.imageUrl %><% } %>">
+        <input name="imageUrl" id="image-url" type="text" value="<%= oldInput.imageUrl %>">
+        <img class="main-content__img" src="<%= oldInput.imageUrl %>" />
       </div>
       <div class="main-content__group">
         <% for (let i = 0; i < 5; i++) { %>
         <div class="main-content__group__entry">
           <label for="link-display">Link Display</label>
-          <input name="linkDisplay<%= i %>" id="link-display" type="text" value="<% if (editMode && chore.links.length > i) { %><%= chore.links[i].display %><% } %>">
+          <input name="linkDisplay<%= i %>" id="link-display" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].display %><% } %>">
           <label for="link-url">Link Url</label>
-          <input name="linkUrl<%= i %>" id="link-url" type="text" value="<% if (editMode && chore.links.length > i) { %><%= chore.links[i].link %><% } %>">
+          <input name="linkUrl<%= i %>" id="link-url" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].link %><% } %>">
           <!-- <button id="delete">x</button> -->
         </div>
         <% } %>

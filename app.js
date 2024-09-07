@@ -6,9 +6,11 @@ const multer = require("multer");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+const flash = require("connect-flash");
 
 const choresRoutes = require("./routes/chores");
 const authRoutes = require("./routes/auth");
+const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.uqyei50.mongodb.net/${process.env.MONGO_DB}`;
@@ -60,6 +62,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
+app.use(flash());
 
 app.use((req, res, next) => {
   if (!req.session.user) {
@@ -67,7 +70,12 @@ app.use((req, res, next) => {
   }
   User.findById(req.session.user._id)
     .then((user) => {
-      req.user = user;
+      req.user = {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        chores: user.chores,
+      };
       next();
     })
     .catch((err) => console.log(err));
@@ -75,6 +83,14 @@ app.use((req, res, next) => {
 
 app.use(authRoutes);
 app.use(choresRoutes);
+
+app.get("/500", errorController.get500);
+
+app.use(errorController.get404);
+
+app.use((error, req, res, next) => {
+  res.redirect("/500");
+});
 
 mongoose
   .connect(MONGODB_URI)

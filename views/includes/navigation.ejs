@@ -1,6 +1,7 @@
 <div class="backdrop"></div>
 <header class="main-header">
   <nav class="main-header__nav">
+    <% if (isAuthenticated) { %>
     <ul class="main-header__item-list">
       <li class="main-header__item">
         <a class="<%= path === '/' ? 'active' : '' %>" href="/">Chores</a>
@@ -9,8 +10,12 @@
         <a class="<%= path === '/create' ? 'active' : '' %>" href="/create">Create</a>
       </li>
     </ul>
+    <p><%= username %></p>
     <form action="/logout" method="POST">
       <button class="main-header__logout" type="submit">Logout</button>
     </form>
+    <% } else { %>
+    <a href="/login" class="main-header__login">Login</a>
+    <% } %>
   </nav>
 </header>
