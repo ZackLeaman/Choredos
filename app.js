@@ -27,11 +27,11 @@ const {
   doubleCsrfProtection, // This is the default CSRF protection middleware.
 } = doubleCsrf({
   getSecret: () => process.env.CSRF_SECRET,
-  getTokenFromRequest: (req) => {
-    console.log(req);
+  // getTokenFromRequest: (req) => {
+  //   console.log(req);
 
-    return req.body._csrf;
-  },
+  //   return req.body._csrf;
+  // },
 });
 
 const fileStorage = multer.diskStorage({
@@ -74,12 +74,22 @@ app.use(
 );
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(function (req, res, next) {
+  console.log(JSON.stringify(req.body, null, 2));
+
+  next();
+});
+
 app.use(multer({ storage: fileStorage, fileFilter }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(flash());
 
 app.use((req, res, next) => {
+  console.log("HEYO IN APP");
+
   if (!req.session.user) {
     return next();
   }

@@ -87,6 +87,7 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
+  console.log("HEYO YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
   const { password, email } = req.body;
 
   const errors = validationResult(req);

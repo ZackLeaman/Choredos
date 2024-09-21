@@ -10,7 +10,7 @@
     <% if (errorMessage) { %>
     <div class="user-message user-message--error"><%= errorMessage %></div>
     <% } %>
-    <form class="main-content__form main-content__login-form" action="/login" method="POST">
+    <form class="main-content__form main-content__login-form">
       <div class="main-content__field">
         <label for="email">Email</label>
         <input name="email" id="email" type="email" value="<%= oldInput.email %>">
@@ -27,10 +27,9 @@
         </label>
       </div>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <button id="submit" type="submit">Login</button>
+      <button id="submit" type="button" onclick="submitForm('login', ['email', 'password'], '<%= csrfToken %>')">Login</button>
     </form>
     <a href="/signup">Signup</a>
   </section>
 
-  <script src="/js/main.js"></script>
   <%- include('./includes/end.ejs') %>
