@@ -1,13 +1,21 @@
-const express = require("express");
-const choresController = require("../controllers/chores");
-const { body, check } = require("express-validator");
-const isAuth = require("../middleware/is-auth");
+import express from "express";
+import { body, check } from "express-validator";
+import {
+  getChores,
+  getCreateChore,
+  getEditChore,
+  postChoreComplete,
+  postCreateChore,
+  postDeleteChore,
+  postEditChore,
+} from "../controllers/chores.js";
+import isAuth from "../middleware/is-auth.js";
 
 const router = express.Router();
 
-router.get("/", isAuth, choresController.getChores);
+router.get("/", isAuth, getChores);
 
-router.get("/create", isAuth, choresController.getCreateChore);
+router.get("/create", isAuth, getCreateChore);
 
 router.post(
   "/create",
@@ -26,7 +34,7 @@ router.post(
       .isLength({ min: 0, max: 400 })
       .trim()
       .withMessage("Description must not exceed 400 characters."),
-    body("imageUrl").isURL(),
+    // body("imageUrl").isURL(),
     check("links.*.display")
       .optional({ checkFalsy: true })
       .trim()
@@ -39,10 +47,10 @@ router.post(
       .withMessage("Links must be URLs."),
   ],
   isAuth,
-  choresController.postCreateChore
+  postCreateChore
 );
 
-router.post("/complete-chore", isAuth, choresController.postChoreComplete);
+router.post("/complete-chore", isAuth, postChoreComplete);
 
 router.post(
   "/edit",
@@ -61,7 +69,7 @@ router.post(
       .isLength({ min: 0, max: 400 })
       .trim()
       .withMessage("Description must not exceed 400 characters."),
-    body("imageUrl").isURL(),
+    // body("imageUrl").isURL(),
     check("links.*.display")
       .optional({ checkFalsy: true })
       .trim()
@@ -74,11 +82,11 @@ router.post(
       .withMessage("Links must be URLs."),
   ],
   isAuth,
-  choresController.postEditChore
+  postEditChore
 );
 
-router.get("/edit/:choreId", isAuth, choresController.getEditChore);
+router.get("/edit/:choreId", isAuth, getEditChore);
 
-router.post("/delete/:choreId", isAuth, choresController.postDeleteChore);
+router.post("/delete/:choreId", isAuth, postDeleteChore);
 
-module.exports = router;
+export default router;

@@ -1,12 +1,18 @@
-const express = require("express");
-const authController = require("../controllers/auth");
-const isAuth = require("../middleware/is-auth");
-const { body } = require("express-validator");
-const User = require("../models/user");
+import express from "express";
+import { body } from "express-validator";
+import {
+  getLogin,
+  getSignup,
+  postLogin,
+  postLogout,
+  postSignup,
+} from "../controllers/auth.js";
+import isAuth from "../middleware/is-auth.js";
+import User from "../models/user.js";
 
 const router = express.Router();
 
-router.get("/signup", authController.getSignup);
+router.get("/signup", getSignup);
 
 router.post(
   "/signup",
@@ -53,10 +59,10 @@ router.post(
         return true;
       }),
   ],
-  authController.postSignup
+  postSignup
 );
 
-router.get("/login", authController.getLogin);
+router.get("/login", getLogin);
 
 router.post(
   "/login",
@@ -68,9 +74,9 @@ router.post(
       .normalizeEmail(),
     body("password", "Must be a valid password.").trim().escape(),
   ],
-  authController.postLogin
+  postLogin
 );
 
-router.post("/logout", isAuth, authController.postLogout);
+router.post("/logout", isAuth, postLogout);
 
-module.exports = router;
+export default router;

@@ -1,8 +1,8 @@
-const User = require("../models/user.js");
-const bcrypt = require("bcryptjs");
-const { validationResult } = require("express-validator");
+import bcrypt from "bcryptjs";
+import { validationResult } from "express-validator";
+import User from "../models/user.js";
 
-exports.getSignup = (req, res, next) => {
+export const getSignup = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
@@ -23,7 +23,7 @@ exports.getSignup = (req, res, next) => {
   });
 };
 
-exports.postSignup = (req, res, next) => {
+export const postSignup = (req, res, next) => {
   const { username, password, email, confirmPassword } = req.body;
 
   const errors = validationResult(req);
@@ -70,7 +70,7 @@ exports.postSignup = (req, res, next) => {
     });
 };
 
-exports.getLogin = (req, res, next) => {
+export const getLogin = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
@@ -86,7 +86,7 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.postLogin = (req, res, next) => {
+export const postLogin = (req, res, next) => {
   const { password, email } = req.body;
 
   const errors = validationResult(req);
@@ -147,9 +147,11 @@ exports.postLogin = (req, res, next) => {
     });
 };
 
-exports.postLogout = (req, res) => {
+export const postLogout = (req, res) => {
   req.session.destroy((err) => {
     console.log(err);
     res.redirect("/");
   });
 };
+
+export default null;
