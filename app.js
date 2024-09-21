@@ -1,26 +1,31 @@
-const path = require("path");
+import path from "path";
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const multer = require("multer");
-const mongoose = require("mongoose");
-const session = require("express-session");
-const MongoDBStore = require("connect-mongodb-session")(session);
-const flash = require("connect-flash");
+import express from "express";
+import bodyParser from "body-parser";
+import multer from "multer";
+import mongoose from "mongoose";
+import session from "express-session";
+import { default as connectMongoDBSession } from "connect-mongodb-session";
+import flash from "connect-flash";
 
-const choresRoutes = require("./routes/chores");
-const authRoutes = require("./routes/auth");
-const errorController = require("./controllers/error");
-const User = require("./models/user");
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import choresRoutes from "./routes/chores.js";
+import authRoutes from "./routes/auth.js";
+import { get404, get500 } from "./controllers/error.js";
+import User from "./models/user.js";
 
 const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.uqyei50.mongodb.net/${process.env.MONGO_DB}`;
 
+const MongoDBStore = connectMongoDBSession(session);
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions", // name of collection in 'store' db
   // can also config expiration info here
 });
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "images");
@@ -84,9 +89,9 @@ app.use((req, res, next) => {
 app.use(authRoutes);
 app.use(choresRoutes);
 
-app.get("/500", errorController.get500);
+app.get("/500", get500);
 
-app.use(errorController.get404);
+app.use(get404);
 
 app.use((error, req, res, next) => {
   res.redirect("/500");

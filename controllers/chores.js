@@ -1,14 +1,43 @@
-const Chore = require("../models/chore.js");
-const User = require("../models/user.js");
-const { validationResult } = require("express-validator");
-const {
+import { validationResult } from "express-validator";
+import Chore from "../models/chore.js";
+import User from "../models/user.js";
+import {
   getDateString,
   compareUTCDates,
   getDateAsUTC,
   getDateInputValue,
-} = require("../utils/date-helper.js");
+} from "../utils/date-helper.js";
+import { getIcalObjectInstance, sendemail } from "../utils/calendar-invite.js";
 
-exports.getChores = (req, res, next) => {
+const sendCalInviteEmail = async (chore) => {
+  User.findById(chore.userId)
+    .then((user) => {
+      // TODO remove user specific validation
+      if (user.email !== "zleaman3@gmail.com") {
+        return;
+      }
+      const calObject = getIcalObjectInstance(
+        chore._id,
+        chore.sequence,
+        getDateInputValue(new Date(chore.nextDue)),
+        `${chore.title} Chore Due`,
+        `${chore.description}`,
+        "Choredo",
+        user.email
+      );
+      return sendemail(
+        user.email,
+        `Choredo: ${chore.title} Due Update`,
+        `<p>The following chore due date has been updated: <b>${chore.title}</b> due on <b>${chore.nextDue}</b></p>`,
+        calObject
+      );
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+};
+
+export const getChores = (req, res, next) => {
   Chore.find({ userId: req.user })
     .sort({ nextDue: 1 })
     .then((chores) => {
@@ -50,7 +79,7 @@ exports.getChores = (req, res, next) => {
     });
 };
 
-exports.getCreateChore = (req, res, next) => {
+export const getCreateChore = (req, res, next) => {
   let message = req.flash("error");
   if (message.length > 0) {
     message = message[0];
@@ -76,7 +105,7 @@ exports.getCreateChore = (req, res, next) => {
   });
 };
 
-exports.postCreateChore = (req, res, next) => {
+export const postCreateChore = (req, res, next) => {
   const { title, dueDate, dueEvery, description, imageUrl } = req.body;
 
   const links = [];
@@ -119,6 +148,7 @@ exports.postCreateChore = (req, res, next) => {
     lastCompleted: [],
     nextDue: getDateAsUTC(nextDueDate).toISOString(),
     userId: req.user,
+    sequence: 0,
   });
 
   let _savedChore;
@@ -138,6 +168,7 @@ exports.postCreateChore = (req, res, next) => {
       return user.save();
     })
     .then(() => {
+      sendCalInviteEmail(_savedChore);
       res.redirect("/");
     })
     .catch((e) => {
@@ -147,7 +178,7 @@ exports.postCreateChore = (req, res, next) => {
     });
 };
 
-exports.postChoreComplete = (req, res, next) => {
+export const postChoreComplete = (req, res, next) => {
   const { _id } = req.body;
 
   User.findById(req.user)
@@ -171,6 +202,8 @@ exports.postChoreComplete = (req, res, next) => {
       chore.lastCompleted.push(todayUTC.toISOString());
       todayUTC.setDate(todayUTC.getDate() + chore.dueEvery);
       chore.nextDue = todayUTC.toISOString();
+      chore.sequence += 1;
+      sendCalInviteEmail(chore);
       return chore.save();
     })
     .then(() => {
@@ -183,7 +216,7 @@ exports.postChoreComplete = (req, res, next) => {
     });
 };
 
-exports.getEditChore = (req, res, next) => {
+export const getEditChore = (req, res, next) => {
   const id = req.params.choreId;
 
   User.findById(req.user)
@@ -237,7 +270,7 @@ exports.getEditChore = (req, res, next) => {
     });
 };
 
-exports.postEditChore = (req, res, next) => {
+export const postEditChore = (req, res, next) => {
   const { _id, title, dueDate, dueEvery, description, imageUrl, chore } =
     req.body;
 
@@ -286,11 +319,16 @@ exports.postEditChore = (req, res, next) => {
     })
     .then((chore) => {
       chore.title = title;
-      chore.nextDue = getDateAsUTC(new Date(dueDate)).toISOString();
       chore.dueEvery = dueEvery;
       chore.description = description;
       chore.imageUrl = imageUrl;
       chore.links = links;
+      const newNextDue = getDateAsUTC(new Date(dueDate)).toISOString();
+      if (newNextDue !== chore.nextDue) {
+        chore.nextDue = getDateAsUTC(new Date(dueDate)).toISOString();
+        chore.sequence += 1;
+        sendCalInviteEmail(chore);
+      }
 
       return chore.save();
     })
@@ -304,7 +342,7 @@ exports.postEditChore = (req, res, next) => {
     });
 };
 
-exports.postDeleteChore = (req, res, next) => {
+export const postDeleteChore = (req, res, next) => {
   const _id = req.params.choreId;
   const userId = req.user;
 
@@ -333,3 +371,5 @@ exports.postDeleteChore = (req, res, next) => {
       return next(error);
     });
 };
+
+export default null;

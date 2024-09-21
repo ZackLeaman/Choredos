@@ -1,4 +1,4 @@
-exports.getDateString = (newDate) => {
+export const getDateString = (newDate) => {
   if (newDate === undefined || newDate === null) {
     return "";
   }
@@ -7,7 +7,7 @@ exports.getDateString = (newDate) => {
   }/${newDate.getUTCDate()}/${newDate.getUTCFullYear()}`;
 };
 
-exports.compareUTCDates = (date1, date2) => {
+export const compareUTCDates = (date1, date2) => {
   return (
     date1.getUTCMonth() === date2.getUTCMonth() &&
     date1.getUTCFullYear() === date2.getUTCFullYear() &&
@@ -15,7 +15,7 @@ exports.compareUTCDates = (date1, date2) => {
   );
 };
 
-exports.getDateAsUTC = (newDate) => {
+export const getDateAsUTC = (newDate) => {
   return new Date(
     Date.UTC(
       newDate.getUTCFullYear(),
@@ -29,6 +29,6 @@ exports.getDateAsUTC = (newDate) => {
   );
 };
 
-exports.getDateInputValue = (newDate) => {
+export const getDateInputValue = (newDate) => {
   return newDate.toISOString().substring(0, 10);
 };

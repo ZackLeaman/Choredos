@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const choreSchema = new Schema(
@@ -32,8 +32,12 @@ const choreSchema = new Schema(
       ref: "User",
       required: true,
     },
+    sequence: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Chore", choreSchema);
+export default mongoose.model("Chore", choreSchema);
