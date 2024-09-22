@@ -10,50 +10,54 @@
     <% if (errorMessage) { %>
     <div class="user-message user-message--error"><%= errorMessage %></div>
     <% } %>
-    <% if (editMode) { %>
-    <form class="main-content__form" action="/delete/<%= chore._id %>" method="POST">
-      <button id="btn delete" type="submit">Delete</button>
-    </form>
-    <% } %>
-    <form class="main-content__form" action="<%= !editMode ? '/create' : '/edit' %>" method="POST">
+    <div class="main-content__form-group">
       <% if (editMode) { %>
-      <input type="hidden" name="_id" value="<%= chore._id %>" />
+      <form class="main-content__form-delete" action="/delete/<%= chore._id %>" method="POST">
+        <button id="delete" class="btn" type="submit">Delete</button>
+      </form>
       <% } %>
-      <div class="main-content__field">
-        <label for="title">Title</label>
-        <input name="title" id="title" type="text" value="<%= oldInput.title %>">
-      </div>
-      <div class="main-content__field">
-        <label for="due-date">Due Date</label>
-        <input name="dueDate" id="due-date" type="date" value="<%= oldInput.dueDate %>">
-      </div>
-      <div class="main-content__field">
-        <label for="due-every">Due Every (In Days)</label>
-        <input name="dueEvery" id="due-every" type="number" value="<%= oldInput.dueEvery %>">
-      </div>
-      <div class="main-content__field">
-        <label for="description">Description</label>
-        <textarea name="description" id="description"><%= oldInput.description %></textarea>
-      </div>
-      <div class="main-content__field">
-        <label for="image-url">Image Url</label>
-        <input name="imageUrl" id="image-url" type="text" value="<%= oldInput.imageUrl %>">
-        <img class="main-content__img" src="<%= oldInput.imageUrl %>" />
-      </div>
-      <div class="main-content__group">
-        <% for (let i = 0; i < 5; i++) { %>
-        <div class="main-content__group__entry">
-          <label for="link-display">Link Display</label>
-          <input name="linkDisplay<%= i %>" id="link-display" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].display %><% } %>">
-          <label for="link-url">Link Url</label>
-          <input name="linkUrl<%= i %>" id="link-url" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].link %><% } %>">
-          <!-- <button id="delete">x</button> -->
-        </div>
+      <form class="main-content__form" action="<%= !editMode ? '/create' : '/edit' %>" method="POST">
+        <% if (editMode) { %>
+        <input type="hidden" name="_id" value="<%= chore._id %>" />
         <% } %>
-        <!-- <button id="add-link">Add Link +</button> -->
-      </div>
-      <button id="submit" type="submit"><%= editMode ? "Update" : "Create" %></button>
-    </form>
+        <div class="main-content__field">
+          <label for="title">Title</label>
+          <input name="title" id="title" type="text" value="<%= oldInput.title %>">
+        </div>
+        <div class="main-content__field">
+          <label for="due-date">Due Date</label>
+          <input name="dueDate" id="due-date" type="date" value="<%= oldInput.dueDate %>">
+        </div>
+        <div class="main-content__field">
+          <label for="due-every">Due Every (In Days)</label>
+          <input name="dueEvery" id="due-every" type="number" value="<%= oldInput.dueEvery %>">
+        </div>
+        <div class="main-content__field">
+          <label for="description">Description</label>
+          <textarea name="description" id="description"><%= oldInput.description %></textarea>
+        </div>
+        <div class="main-content__field">
+          <label for="image-url">Image Url</label>
+          <input name="imageUrl" id="image-url" type="text" value="<%= oldInput.imageUrl %>">
+        </div>
+        <% if (oldInput.imageUrl) { %>
+        <img class="main-content__img" src="<%= oldInput.imageUrl %>" />
+        <% } %>
+        <div class="main-content__group">
+          <% for (let i = 0; i < 5; i++) { %>
+          <div class="main-content__group__entry">
+            <label for="link-display">Link Display</label>
+            <input name="linkDisplay<%= i %>" id="link-display" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].display %><% } %>">
+            <label for="link-url">Link Url</label>
+            <input name="linkUrl<%= i %>" id="link-url" type="text" value="<% if (oldInput.links.length > i) { %><%= oldInput.links[i].link %><% } %>">
+            <!-- <button id="delete">x</button> -->
+          </div>
+          <% } %>
+          <!-- <button id="add-link">Add Link +</button> -->
+        </div>
+        <button id="submit" class="btn" type="submit"><%= editMode ? "Update" : "Create" %></button>
+      </form>
+    </div>
 
   </section>
 

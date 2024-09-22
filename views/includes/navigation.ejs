@@ -1,6 +1,7 @@
 <div class="backdrop"></div>
 <header class="main-header">
   <nav class="main-header__nav">
+    <h1 class="main-content__page-title">Choredos</h1>
     <% if (isAuthenticated) { %>
     <ul class="main-header__item-list">
       <li class="main-header__item">
@@ -10,12 +11,12 @@
         <a class="<%= path === '/create' ? 'active' : '' %>" href="/create">Create</a>
       </li>
     </ul>
-    <p><%= username %></p>
-    <form action="/logout" method="POST">
-      <button class="main-header__logout" type="submit">Logout</button>
+    <p class="main-header__username"><%= username %></p>
+    <form class="main-header__logout-form" action="/logout" method="POST">
+      <button class="main-header__logout btn" type="submit">Logout</button>
     </form>
     <% } else { %>
-    <a href="/login" class="main-header__login">Login</a>
+    <a href="/login" class="main-header__login btn">Login</a>
     <% } %>
   </nav>
 </header>
