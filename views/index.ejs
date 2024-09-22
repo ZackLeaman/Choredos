@@ -6,10 +6,10 @@
 
 <body>
   <section class="main-content">
-    <h1 class="main-content__page-title">Choredos</h1>
     <ul class="main-content__chores">
       <% for (let i = 0; i < chores.length; i++) { %>
       <li class="main-content__chore">
+        <a id="edit" class="btn" href="/edit/<%= chores[i]._id %>">Edit</a>
         <h3 class="main-content__title"><%= chores[i].title %></h3>
         <img class="main-content__img" src="<%= chores[i].imageUrl %>" />
         <h5 class="main-content__label">Next Due:</h5>
@@ -28,12 +28,11 @@
           </li>
           <% } %>
         </ul>
-        <a class="btn" href="/edit/<%= chores[i]._id %>">Edit</a>
 
         <% if (!chores[i].isCompletedToday) { %>
-        <form action="/complete-chore" method="post">
+        <form class="main-content__form-complete-chore" action="/complete-chore" method="post">
           <input type="hidden" name="_id" value="<%= chores[i]._id %>" />
-          <button class="btn complete" type="submit">Complete It!</button>
+          <button id="complete" class="btn complete" type="submit">Complete It!</button>
         </form>
         <% } else { %>
         <p class="main-content__completed">GREAT JOB!</p>

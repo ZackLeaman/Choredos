@@ -1,10 +1,22 @@
+.main-content__form-group {
+    padding: 0 2rem 2rem 2rem;
+    max-width: min(60%, 700px);
+}
+
 .main-content__form {
-    background: rgb(223, 200, 180);
-    color: #b96262;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+    color: var(--secondary-accent-color);
     padding: 1rem;
     border-radius: 1rem;
-    max-width: min(60%, 700px);
-    box-shadow: 0.5rem 0.5rem 0.2rem rgba(10, 10, 75, 0.2);
+    box-shadow: 0.2rem 0.2rem 2rem white;
+}
+
+.main-content__form-delete {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .main-content__field {
@@ -37,26 +49,21 @@
     padding-top: 1rem;
 }
 
+textarea {
+    resize: vertical;
+    max-height: 20rem;
+    min-height: 5rem;
+}
+
 label {
     padding-inline: 1rem;
 }
 
-img {
+.main-content__img {
     height: 10rem;
     object-fit: contain;
-}
-
-#submit {
-    text-decoration: none;
-    max-width: 500px;
-    padding: 0.5rem;
-    background: #f1a35f;
-    border-radius: 1rem;
-    border: none;
-    box-shadow: 0 0.3rem 0 rgb(118 90 65);
-    color: #ffffff;
-    cursor: pointer;
-    text-align: center;
-    margin-top: 1rem;
-    width: 100%;
+    margin: 1rem 0;
+    padding: 1rem 0;
+    background: var(--primary-accent-color);
+    box-shadow: inset 0 -1rem 1rem var(--secondary-accent-color);
 }
