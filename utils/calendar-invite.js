@@ -52,14 +52,16 @@ export const sendemail = async (sendto, subject, htmlbody, calendarObj) => {
     to: sendto,
     subject: subject,
     html: htmlbody,
-    attachments: {
+  };
+  if (calendarObj) {
+    mailOptions["attachments"] = {
       contentType: "text/calendar",
       method: "REQUEST",
       content: calendarObj.toString(),
       contentDisposition: "attachment",
       filename: "chore-invite.ics",
-    },
-  };
+    };
+  }
   smtpTransport.sendMail(mailOptions, function (error, response) {
     if (error) {
       console.log(error);
